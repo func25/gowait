@@ -26,8 +26,8 @@ func scheduleRepeatFunc(t time.Duration, f func() *time.Time, opts ...RepeatOpt)
 func repeatScheduleFunc(f func() *time.Time, opts ...RepeatOpt) func() {
 	return func() {
 		nextTime := f()
-		interval := nextTime.Sub(time.Now())
 		if nextTime != nil {
+			interval := nextTime.Sub(time.Now())
 			for _, v := range opts {
 				v(&interval)
 			}
