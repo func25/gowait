@@ -31,13 +31,13 @@ func repeatScheduleFunc(f func() *time.Time, opts ...RepeatOpt) func() {
 			for _, v := range opts {
 				v(&interval)
 			}
-			scheduleRepeatFunc(interval, f)
+			scheduleRepeatFunc(interval, f, opts...)
 		}
 	}
 }
 
-func DurationFuncLoop(duration time.Duration, f func() *time.Duration) *time.Timer {
-	return DurationFunc(duration, repeatDurationFunc(f))
+func DurationFuncLoop(duration time.Duration, f func() *time.Duration, opts ...RepeatOpt) *time.Timer {
+	return DurationFunc(duration, repeatDurationFunc(f, opts...))
 }
 
 func repeatDurationFunc(f func() *time.Duration, opts ...RepeatOpt) func() {
@@ -47,7 +47,7 @@ func repeatDurationFunc(f func() *time.Duration, opts ...RepeatOpt) func() {
 			for _, v := range opts {
 				v(nextTime)
 			}
-			DurationFuncLoop(*nextTime, f)
+			DurationFuncLoop(*nextTime, f, opts...)
 		}
 	}
 }
