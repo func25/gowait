@@ -11,7 +11,7 @@ func DurationFunc(duration time.Duration, f func(), opts ...waitOpt) *time.Timer
 }
 
 func durationFunc(duration time.Duration, f func(), cfg waitConfig) *time.Timer {
-	if duration < 0 {
+	if duration <= 0 {
 		go recoverFunc(cfg, f)()
 		return nil
 	}
@@ -30,7 +30,7 @@ func recoverFunc(cfg waitConfig, f func()) func() {
 			r := recover()
 			if r != nil {
 				if cfg.panicRetry {
-					DurationFunc(cfg.panicRetryDuration, f)
+					durationFunc(cfg.panicRetryDuration, f, cfg)
 				}
 			}
 		}()
