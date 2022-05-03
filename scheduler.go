@@ -5,36 +5,36 @@ import (
 )
 
 // return controller to stop the function
-func DurationFunc(duration time.Duration, f func(), opts ...waitOpt) *time.Timer {
+func DurationJob(duration time.Duration, job func(), opts ...waitOpt) *time.Timer {
 	cfg := (&waitConfig{}).applyOpts(opts...)
-	return durationFunc(duration, f, *cfg)
+	return durationJob(duration, job, *cfg)
 }
 
-func durationFunc(duration time.Duration, f func(), cfg waitConfig) *time.Timer {
+func durationJob(duration time.Duration, job func(), cfg waitConfig) *time.Timer {
 	if duration <= 0 {
-		go recoverFunc(cfg, f)()
+		go recoverJob(cfg, job)()
 		return nil
 	}
-	return time.AfterFunc(duration, recoverFunc(cfg, f))
+	return time.AfterFunc(duration, recoverJob(cfg, job))
 }
 
 // return controller to stop the function
-func ScheduleFunc(t time.Time, f func(), opts ...waitOpt) *time.Timer {
+func ScheduleJob(t time.Time, job func(), opts ...waitOpt) *time.Timer {
 	d := t.Sub(time.Now())
-	return DurationFunc(d, f, opts...)
+	return DurationJob(d, job, opts...)
 }
 
-func recoverFunc(cfg waitConfig, f func()) func() {
+func recoverJob(cfg waitConfig, job func()) func() {
 	return func() {
 		defer func() {
 			r := recover()
 			if r != nil {
 				if cfg.panicRetry {
-					durationFunc(cfg.panicRetryDuration, f, cfg)
+					durationJob(cfg.panicRetryDuration, job, cfg)
 				}
 			}
 		}()
 
-		f()
+		job()
 	}
 }

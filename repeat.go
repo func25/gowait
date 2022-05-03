@@ -4,43 +4,43 @@ import (
 	"time"
 )
 
-func ScheduleFuncLoop(t time.Time, f func() *time.Time, opts ...repeatOpt) *time.Timer {
+func ScheduleFuncLoop(t time.Time, job func() *time.Time, opts ...repeatOpt) *time.Timer {
 	d := t.Sub(time.Now())
 	cfg := (&repeatConfig{}).applyOpts(opts...)
-	return scheduleFuncLoop(d, f, *cfg)
+	return scheduleJobLoop(d, job, *cfg)
 }
 
 // hidden from external
-func scheduleFuncLoop(t time.Duration, f func() *time.Time, r repeatConfig) *time.Timer {
-	return durationFunc(t, repeatScheduleFunc(f, r), r.waitConfig)
+func scheduleJobLoop(t time.Duration, job func() *time.Time, cfg repeatConfig) *time.Timer {
+	return durationJob(t, repeatScheduleJob(job, cfg), cfg.waitConfig)
 }
 
-func repeatScheduleFunc(f func() *time.Time, r repeatConfig) func() {
+func repeatScheduleJob(job func() *time.Time, cfg repeatConfig) func() {
 	return func() {
-		nextTime := f()
+		nextTime := job()
 		if nextTime != nil {
-			interval := r.applyDuration(nextTime.Sub(time.Now()))
-			scheduleFuncLoop(interval, f, r)
+			interval := cfg.applyDuration(nextTime.Sub(time.Now()))
+			scheduleJobLoop(interval, job, cfg)
 		}
 	}
 }
 
-func DurationFuncLoop(duration time.Duration, f func() *time.Duration, opts ...repeatOpt) *time.Timer {
+func DurationJobLoop(duration time.Duration, job func() *time.Duration, opts ...repeatOpt) *time.Timer {
 	cfg := (&repeatConfig{}).applyOpts(opts...)
-	return durationFuncLoop(duration, f, *cfg)
+	return durationJobLoop(duration, job, *cfg)
 }
 
 // hidden from external
-func durationFuncLoop(duration time.Duration, f func() *time.Duration, r repeatConfig) *time.Timer {
-	return durationFunc(duration, repeatDurationFunc(f, r), r.waitConfig)
+func durationJobLoop(duration time.Duration, job func() *time.Duration, r repeatConfig) *time.Timer {
+	return durationJob(duration, repeatDurationFunc(job, r), r.waitConfig)
 }
 
-func repeatDurationFunc(f func() *time.Duration, r repeatConfig) func() {
+func repeatDurationFunc(job func() *time.Duration, r repeatConfig) func() {
 	return func() {
-		nextTime := f()
+		nextTime := job()
 		if nextTime != nil {
 			*nextTime = r.applyDuration(*nextTime)
-			durationFuncLoop(*nextTime, f, r)
+			durationJobLoop(*nextTime, job, r)
 		}
 	}
 }
