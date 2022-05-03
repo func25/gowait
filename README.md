@@ -76,12 +76,14 @@ To use our option, you should create an "option generator", in the below example
 var startTime int64
 func main() {
 	startTime = time.Now().Unix()
+	
 	g := gowait.RepeatOptGen{} "option generator"
 	gowait.ScheduleFuncLoop(loopTime, time.Now().Add(time.Second),
 		g.ZeroDuration(time.Second), // zeroDuration will be 2s (minDuration have higher priority)
-		g.MinDuration(time.Second*2),
-		g.PanicRetry(true, time.Second),
+		g.MinDuration(2*time.Second),
+		g.PanicRetry(true, 3*time.Second),
 	)
+	
 	time.Sleep(time.Hour)
 }
 
