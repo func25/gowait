@@ -4,15 +4,15 @@ import (
 	"time"
 )
 
-func ScheduleFuncLoop(t time.Time, job func() *time.Time, opts ...repeatOpt) *time.Timer {
+func ScheduleFuncLoop(job func() *time.Time, t time.Time, opts ...repeatOpt) *time.Timer {
 	d := t.Sub(time.Now())
 	cfg := (&repeatConfig{}).applyOpts(opts...)
-	return scheduleJobLoop(d, job, *cfg)
+	return scheduleJobLoop(job, d, *cfg)
 }
 
 // hidden from external
-func scheduleJobLoop(t time.Duration, job func() *time.Time, cfg repeatConfig) *time.Timer {
-	return durationJob(t, repeatScheduleJob(job, cfg), cfg.waitConfig)
+func scheduleJobLoop(job func() *time.Time, t time.Duration, cfg repeatConfig) *time.Timer {
+	return durationJob(repeatScheduleJob(job, cfg), t, cfg.waitConfig)
 }
 
 func repeatScheduleJob(job func() *time.Time, cfg repeatConfig) func() {
@@ -20,19 +20,19 @@ func repeatScheduleJob(job func() *time.Time, cfg repeatConfig) func() {
 		nextTime := job()
 		if nextTime != nil {
 			interval := cfg.applyDuration(nextTime.Sub(time.Now()))
-			scheduleJobLoop(interval, job, cfg)
+			scheduleJobLoop(job, interval, cfg)
 		}
 	}
 }
 
-func DurationJobLoop(duration time.Duration, job func() *time.Duration, opts ...repeatOpt) *time.Timer {
+func DurationJobLoop(job func() *time.Duration, duration time.Duration, opts ...repeatOpt) *time.Timer {
 	cfg := (&repeatConfig{}).applyOpts(opts...)
-	return durationJobLoop(duration, job, *cfg)
+	return durationJobLoop(job, duration, *cfg)
 }
 
 // hidden from external
-func durationJobLoop(duration time.Duration, job func() *time.Duration, r repeatConfig) *time.Timer {
-	return durationJob(duration, repeatDurationFunc(job, r), r.waitConfig)
+func durationJobLoop(job func() *time.Duration, duration time.Duration, r repeatConfig) *time.Timer {
+	return durationJob(repeatDurationFunc(job, r), duration, r.waitConfig)
 }
 
 func repeatDurationFunc(job func() *time.Duration, r repeatConfig) func() {
@@ -40,7 +40,7 @@ func repeatDurationFunc(job func() *time.Duration, r repeatConfig) func() {
 		nextTime := job()
 		if nextTime != nil {
 			*nextTime = r.applyDuration(*nextTime)
-			durationJobLoop(*nextTime, job, r)
+			durationJobLoop(job, *nextTime, r)
 		}
 	}
 }

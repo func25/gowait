@@ -12,7 +12,7 @@ var startTime int64
 
 func TestDuration(t *testing.T) {
 	startTime = time.Now().Unix()
-	gowait.DurationFuncLoop(time.Second, loopDuration, gowait.RepeatOptGen{}.ZeroDuration(time.Second*3))
+	gowait.DurationJobLoop(loopDuration, time.Second, gowait.RepeatOptGen{}.ZeroDuration(time.Second*3))
 	time.Sleep(time.Hour)
 }
 
@@ -31,24 +31,26 @@ func loopDuration() *time.Duration {
 func TestTime(t *testing.T) {
 	startTime = time.Now().Unix()
 	g := gowait.RepeatOptGen{}
-	gowait.ScheduleFuncLoop(time.Now().Add(time.Second), loopTime,
-		g.ZeroDuration(time.Second*1),
+	gowait.ScheduleFuncLoop(loopTime, time.Now().Add(time.Second),
+		g.ZeroDuration(time.Second),
 		g.MinDuration(time.Second*2),
-		g.PanicRetry(true, time.Second),
+		g.PanicRetry(true, 3*time.Second),
 	)
 	time.Sleep(time.Hour)
 }
 
 func loopTime() *time.Time {
 	dis := time.Now().Unix() - startTime
-	fmt.Println(dis)
-	x := time.Now().Add(time.Second * 1)
+	fmt.Println("show time:", dis)
+	x := time.Now().Add(time.Second * 1) // run next 1 second
 
 	if dis == 5 {
-		x = time.Now() // time.Now().Add(time.Second)
+		fmt.Println("zeroDuration")
+		x = time.Now() // test zeroDuration + minDuration
 	}
 
-	if dis > 10 {
+	if dis > 10 { // test panic
+		fmt.Println("panic")
 		panic("dis > 10")
 	}
 

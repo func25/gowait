@@ -5,32 +5,32 @@ import (
 )
 
 // return controller to stop the function
-func DurationJob(duration time.Duration, job func(), opts ...waitOpt) *time.Timer {
+func DurationJob(job func(), duration time.Duration, opts ...waitOpt) *time.Timer {
 	cfg := (&waitConfig{}).applyOpts(opts...)
-	return durationJob(duration, job, *cfg)
+	return durationJob(job, duration, *cfg)
 }
 
-func durationJob(duration time.Duration, job func(), cfg waitConfig) *time.Timer {
+func durationJob(job func(), duration time.Duration, cfg waitConfig) *time.Timer {
 	if duration <= 0 {
-		go recoverJob(cfg, job)()
+		go recoverJob(job, cfg)()
 		return nil
 	}
-	return time.AfterFunc(duration, recoverJob(cfg, job))
+	return time.AfterFunc(duration, recoverJob(job, cfg))
 }
 
 // return controller to stop the function
-func ScheduleJob(t time.Time, job func(), opts ...waitOpt) *time.Timer {
+func ScheduleJob(job func(), t time.Time, opts ...waitOpt) *time.Timer {
 	d := t.Sub(time.Now())
-	return DurationJob(d, job, opts...)
+	return DurationJob(job, d, opts...)
 }
 
-func recoverJob(cfg waitConfig, job func()) func() {
+func recoverJob(job func(), cfg waitConfig) func() {
 	return func() {
 		defer func() {
 			r := recover()
 			if r != nil {
 				if cfg.panicRetry {
-					durationJob(cfg.panicRetryDuration, job, cfg)
+					durationJob(job, cfg.panicRetryDuration, cfg)
 				}
 			}
 		}()
