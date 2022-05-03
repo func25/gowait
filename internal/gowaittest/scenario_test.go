@@ -31,7 +31,11 @@ func loopDuration() *time.Duration {
 func TestTime(t *testing.T) {
 	startTime = time.Now().Unix()
 	g := gowait.RepeatOptGen{}
-	gowait.ScheduleFuncLoop(time.Now().Add(time.Second), loopTime, g.ZeroDuration(time.Second*1), g.MinDuration(time.Second*2))
+	gowait.ScheduleFuncLoop(time.Now().Add(time.Second), loopTime,
+		g.ZeroDuration(time.Second*1),
+		g.MinDuration(time.Second*2),
+		g.PanicRetry(true, time.Second),
+	)
 	time.Sleep(time.Hour)
 }
 

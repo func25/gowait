@@ -6,13 +6,24 @@ type RepeatOptGen struct{}
 type repeatOpt func(*repeatConfig)
 
 type repeatConfig struct {
-	time         time.Duration
 	zeroDuration time.Duration
 	minDuration  time.Duration
 	waitConfig
 }
 
+func (r *repeatConfig) init() *repeatConfig {
+	*r = repeatConfig{
+		zeroDuration: time.Second,
+		minDuration:  time.Second,
+	}
+	r.waitConfig.init()
+
+	return r
+}
+
 func (r *repeatConfig) applyOpts(opts ...repeatOpt) *repeatConfig {
+	r.init()
+
 	for _, v := range opts {
 		v(r)
 	}

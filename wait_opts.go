@@ -10,11 +10,17 @@ type waitConfig struct {
 	panicRetryDuration time.Duration
 }
 
-func (r *waitConfig) applyOpts(opts ...waitOpt) *waitConfig {
+func (r *waitConfig) init() *waitConfig {
 	*r = waitConfig{
 		panicRetry:         true,
 		panicRetryDuration: 15 * time.Second,
 	}
+
+	return r
+}
+
+func (r *waitConfig) applyOpts(opts ...waitOpt) *waitConfig {
+	r.init()
 
 	for _, v := range opts {
 		v(r)
