@@ -78,7 +78,7 @@ func main() {
 	startTime = time.Now().Unix()
 	
 	g := gowait.RepeatOptGen{} "option generator"
-	gowait.ScheduleFuncLoop(loopTime, time.Now().Add(time.Second),
+	gowait.ScheduleJobLoop(loopTime, time.Now().Add(time.Second),
 		g.ZeroDuration(time.Second), // zeroDuration will be 2s (minDuration have higher priority)
 		g.MinDuration(2*time.Second),
 		g.PanicRetry(true, 3*time.Second),
