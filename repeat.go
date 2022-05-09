@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-func ScheduleFuncLoop(job func() *time.Time, t time.Time, opts ...repeatOpt) *time.Timer {
+func ScheduleJobLoop(job func() *time.Time, t time.Time, opts ...repeatOpt) *time.Timer {
 	d := t.Sub(time.Now())
 	cfg := (&repeatConfig{}).applyOpts(opts...)
 	return scheduleJobLoop(job, d, *cfg)
