@@ -17,7 +17,7 @@ Instead of cronjob, you can schedule a job run at a specific time, run after X d
 
 ### Schedule a job
 
-Schedule a job run in 3 second later:
+Schedule a job run in 3 seconds later:
 
 ```go
 var start int64
@@ -42,7 +42,7 @@ show time: 3
 
 ### Schedule a REPEAT job
 
-Schedule a job run in 3 seconds later and also run EVERY 3 seconds, if you want to stop, just return nil on the job (showTimeLoop job for example)
+Schedule a job run in 3 seconds later and also run EVERY 3 seconds, if you want to stop, just return nil in the job
 ```go
 var start int64
 
